@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv 
 
@@ -14,24 +15,27 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.enums import ParseMode 
 
 load_dotenv() 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+bot: Optional[Bot] = None
+dp: Optional[Dispatcher] = None
+
 if not BOT_TOKEN:
-    print("Error: BOT_TOKEN not found in .env or environment variables!")
-    # exit()
-
-# --- Aiogram Бот ---
-if BOT_TOKEN:
-    default_bot_properties = DefaultBotProperties(
-        parse_mode=ParseMode.HTML
-    )
-    bot = Bot(token=BOT_TOKEN, default=default_bot_properties)
+    print("Error: BOT_TOKEN not found in .env or environment variables! Telegram Bot will not be started.")
 else:
-    bot = None
-
-dp = Dispatcher() if bot else None
+    try:
+        default_bot_properties = DefaultBotProperties(
+            parse_mode=ParseMode.HTML
+        )
+        bot = Bot(token=BOT_TOKEN, default=default_bot_properties)
+        dp = Dispatcher()
+        print("Telegram Bot and Dispatcher initialized successfully.")
+    except Exception as e:
+        print(f"Error initializing Telegram Bot: {e}. Bot will not be started.")
+        bot = None
+        dp = None
 
 class Kline(BaseModel):
     timestamp: int
@@ -41,19 +45,35 @@ class Kline(BaseModel):
     close: float
     volume: float
 
+@asynccontextmanager
+async def lifespan(app_fastapi: FastAPI):
+    print("FastAPI application startup (via lifespan)...")
+    if bot and dp:
+        print("Creating task for bot polling...")
+        asyncio.create_task(run_bot_polling()) 
+    else:
+        print("Skipping bot startup due to missing BOT_TOKEN or uninitialized Bot/Dispatcher.")
+    
+    yield
+
+    print("FastAPI application shutdown (via lifespan)...")
+    if bot and bot.session:
+        print("Closing bot session...")
+        await bot.session.close()
+        print("Bot session closed.")
+
 app = FastAPI(
     title="Crypto Chart MiniApp API",
     description="API для получения данных о криптовалютах для Telegram MiniApp",
-    version="0.1.1"
+    version="0.1.2",
+    lifespan=lifespan
 )
 
 origins = [
     "http://localhost",
     "http://localhost:5500", 
     "http://127.0.0.1:5500",
-    "https://ranizee.github.io",
-    
-    
+    "https://ranizee.github.io", 
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -64,8 +84,6 @@ app.add_middleware(
 )
 
 SUPPORTED_EXCHANGES = {
-    
-    
     "kucoin": "KuCoin",
     "gateio": "Gate.io",
     "okx": "OKX",
@@ -196,39 +214,19 @@ async def get_klines_endpoint(
         if hasattr(exchange, 'close'):
             await exchange.close()
 
-bot_instance: Optional[Bot] = None
-dp: Optional[Dispatcher] = None
-
-if BOT_TOKEN:
-    bot_instance = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML) 
-    dp = Dispatcher()
-else:
-    print("Warning: BOT_TOKEN is not set. Telegram Bot will not be started.")
-
-if dp and bot_instance: 
+if dp and bot: 
     @dp.message(CommandStart())
     async def send_welcome(message: types.Message):
-        
-        
-        
-        
-        
-        
-        
         await message.reply(
             f"Привет, {message.from_user.full_name}!\n"
             "Нажми кнопку меню ☰ (или /) внизу слева, чтобы открыть график криптовалют.",
-            
         )
 
     @dp.message(F.web_app_data) 
     async def handle_web_app_data(message: types.Message):
-        
         user_id = message.from_user.id
         print(f"Received WebApp data from user {user_id}: {message.web_app_data.data}")
         try:
-            data_from_webapp = json.loads(message.web_app_data.data)
-            
             await message.answer(f"Спасибо! Получил от MiniApp: <code>{message.web_app_data.data}</code>")
         except json.JSONDecodeError:
             await message.answer("Ошибка: не смог разобрать данные от WebApp.")
@@ -236,28 +234,8 @@ if dp and bot_instance:
             await message.answer(f"Произошла ошибка при обработке данных от WebApp: {e}")
 
 async def run_bot_polling():
-    if dp and bot_instance:
+    if dp and bot:
         print("Starting Telegram Bot polling...")
-        
-        
-        await dp.start_polling(bot_instance) 
+        await dp.start_polling(bot) 
     else:
-        
-        print("Telegram Bot polling will not start (BOT_TOKEN missing or Dispatcher not initialized).")
-
-@app.on_event("startup")
-async def on_startup():
-    print("FastAPI application startup...")
-    if BOT_TOKEN and dp and bot_instance: 
-        
-        asyncio.create_task(run_bot_polling())
-    else:
-        print("Skipping bot startup due to missing BOT_TOKEN or uninitialized Dispatcher/Bot.")
-
-@app.on_event("shutdown")
-async def on_shutdown():
-    print("FastAPI application shutdown...")
-    if bot_instance and bot_instance.session:
-        print("Closing bot session...")
-        await bot_instance.session.close()
-        print("Bot session closed.")
+        print("Telegram Bot polling will not start (BOT_TOKEN missing or Dispatcher/Bot not initialized).")
