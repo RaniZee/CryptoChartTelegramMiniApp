@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no, viewport-fit=cover">
+    <title>Crypto Chart</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Крипто График</h1>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="exchange-select">Биржа:</label>
+                <select id="exchange-select">
+                    <option value="">Загрузка бирж...</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="symbol-select">Пара:</label>
+                <select id="symbol-select" disabled>
+                    <option value="">Выберите биржу</option>
+                </select>
+                <input type="text" id="symbol-search" placeholder="Или введите пару (BTC/USDT)" disabled>
+            </div>
+
+            <div class="control-group">
+                <label for="timeframe-select">Таймфрейм:</label>
+                <select id="timeframe-select" disabled>
+                    <option value="1m">1 минута</option>
+                    <option value="3m">3 минуты</option>
+                    <option value="5m">5 минут</option>
+                    <option value="15m">15 минут</option>
+                    <option value="30m">30 минут</option>
+                    <option value="1h" selected>1 час</option>
+                    <option value="2h">2 часа</option>
+                    <option value="4h">4 часа</option>
+                    <option value="6h">6 часов</option>
+                    <option value="12h">12 часов</option>
+                    <option value="1d">1 день</option>
+                    <option value="1w">1 неделя</option>
+                </select>
+            </div>
+
+            <div class="control-group time-range-controls">
+                <label for="start-datetime">Начало (UTC, опционально):</label>
+                <input type="datetime-local" id="start-datetime">
+            </div>
+            
+            
+
+            <div class="control-group">
+                <button id="fetch-chart-button" disabled>Показать график</button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div id="chart"></div>
+            <div id="loading-indicator" style="display: none;">Загрузка данных графика...</div>
+            <div id="error-message" style="display: none; color: red;"></div>
+        </div>
+
+        <footer>
+            <p>Данные предоставлены через CCXT</p>
+            <button id="close-button">Закрыть</button>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

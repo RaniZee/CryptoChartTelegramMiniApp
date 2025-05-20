@@ -1,0 +1,132 @@
+:root {
+    --tg-theme-bg-color: #ffffff;
+    --tg-theme-text-color: #000000;
+    --tg-theme-hint-color: #707579;
+    --tg-theme-link-color: #2481cc;
+    --tg-theme-button-color: #2481cc;
+    --tg-theme-button-text-color: #ffffff;
+    --tg-theme-secondary-bg-color: #f0f0f0; 
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 15px;
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    overscroll-behavior-y: none; 
+    -webkit-font-smoothing: antialiased; 
+    -moz-osx-font-smoothing: grayscale; 
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+header h1 {
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.controls {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: var(--tg-theme-secondary-bg-color);
+    border-radius: 8px;
+}
+
+.control-group {
+    margin-bottom: 15px;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.control-group select,
+.control-group input[type="text"],
+.control-group button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--tg-theme-hint-color); 
+    box-sizing: border-box; 
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+}
+
+.control-group input[type="text"]::placeholder {
+    color: var(--tg-theme-hint-color);
+}
+
+.control-group button {
+    background-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.control-group button:disabled {
+    background-color: var(--tg-theme-hint-color);
+    cursor: not-allowed;
+}
+
+.chart-container {
+    position: relative; 
+    width: 100%;
+    height: 400px; 
+    background-color: var(--tg-theme-secondary-bg-color);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    
+    
+}
+
+#chart { 
+    width: 100%;
+    height: 100%; 
+    
+    
+}
+
+
+#loading-indicator, #error-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 20px;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+#error-message {
+    background-color: rgba(255,0,0,0.7);
+}
+
+footer {
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--tg-theme-hint-color);
+}
+
+footer button {
+    margin-top: 10px;
+    padding: 8px 15px;
+    background-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
