@@ -12,10 +12,26 @@ from dotenv import load_dotenv
 
 from aiogram import Bot, Dispatcher, types, F 
 from aiogram.filters import CommandStart
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from aiogram.enums import ParseMode 
 
 load_dotenv() 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    print("Error: BOT_TOKEN not found in .env or environment variables!")
+    # exit()
+
+# --- Aiogram Бот ---
+if BOT_TOKEN:
+    default_bot_properties = DefaultBotProperties(
+        parse_mode=ParseMode.HTML
+    )
+    bot = Bot(token=BOT_TOKEN, default=default_bot_properties)
+else:
+    bot = None
+
+dp = Dispatcher() if bot else None
 
 class Kline(BaseModel):
     timestamp: int
